@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Book Details</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Book Details</h1>
+
+        <label for="bookSelect">Select a book title:</label>
+
+        <select id="bookSelect">
+            <option value="">-- Select a book --</option>
+        </select>
+
+        <p id="message">Loading book data...</p>
+
+        <div id="bookDetails" hidden>
+            <h2>Book Information</h2>
+
+            <p><strong>Title:</strong><span id="bookTitle"></span></p>
+            <p><strong>Author:</strong><span id="bookAuthor"></span></p>
+            <p><strong>Publication Year:</strong><span id="bookYear"></span></p>
+            <p><strong>Genres:</strong><span id="bookGenres"></span></p>
+        </div>
+    </div>
+
+    <script>
+        const jsonURL = "https://raw.githubusercontent.com/Milkyzwayzz/book-records/main/books.json";
+
+        const bookSelect = document.getElementById("bookSelect");
+        const bookDetails = document.getElementById("bookDetails");
+        const message = document.getElementById("message");
+
+        let books = [];
+
+        async function loadBooks() {
+            try {
+                const response = await fetch(jsonURL);
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch book data.");
+                }
+                const data = await response.json();
+                books = data.Books;
+
+                if (!Array.isArray(books)) {
+                    throw new Error("The JSON data must contain a Books array.");
+                }
+
+                books.forEach(book => {
+                    const option = document.createElement("option");
+
+                    option.value = book.title;
+                    option.textContent = book.title;
+
+                    bookSelect.appendChild(option);
+                });
+
+                message.textContent = "Please select a book title.";
+
+            } catch (error) {
+                message.textContent =
+                    "Error loading books: " + error.message;
+            }
+        }
+
+        bookSelect.addEventListener("change", function () {
+            const selectedTitle = bookSelect.value;
+            const selectedBook = books.find(book =>
+                book.title === selectedTitle
+            );
+
+            if (selectedBook) {
+                document.getElementById("bookTitle").textContent = selectedBook.title;
+
+                document.getElementById("bookAuthor").textContent = selectedBook.author;
+
+                document.getElementById("bookYear").textContent = selectedBook.publicationYear;
+
+                document.getElementById("bookGenres").textContent = selectedBook.genres;
+
+                bookDetails.hidden = false;
+                message.textContent = "";
+
+            } else {
+                bookDetails.hidden = true;
+                message.textContent = "Please select a book title.";
+            }
+        });
+
+        loadBooks();
+    </script>
+</body>
+</html>
